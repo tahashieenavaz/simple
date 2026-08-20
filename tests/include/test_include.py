@@ -7,7 +7,7 @@ def test_files_could_be_included():
     templates_path = root_path / "templates"
     engine = TemplateEngine(templates_path)
     rendered = engine.render("index.html")
-    assert "extra.html" in rendered
+    assert "This part comes from extra.html." in rendered
 
 
 def test_multiple_files_could_be_included():
