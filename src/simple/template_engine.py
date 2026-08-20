@@ -29,6 +29,13 @@ class TemplateEngine(PatternsMixin):
 
         raise RecursionError(f"Infinite inclusion loop detected: {filename}")
 
+    def render_include(self, *, _visited_paths: set, content: str):
+        def _match_resolver(match) -> str:
+            included_filename = match.group(1)
+            return self.render(included_filename, _visited_paths.copy())
+
+        return self.include_pattern.sub(_match_resolver, content)
+
     def render(
         self,
         filename: str,
@@ -51,9 +58,4 @@ class TemplateEngine(PatternsMixin):
 
         _visited_paths.add(target_path)
         content = target_path.read_text(encoding="utf-8")
-
-        def _match_resolver(match) -> str:
-            included_filename = match.group(1)
-            return self.render(included_filename, _visited_paths.copy())
-
-        return self.include_pattern.sub(_match_resolver, content)
+        content = self.render_include(content)
