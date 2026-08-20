@@ -55,7 +55,7 @@ class TemplateEngine:
             _visited_paths = set()
 
         if _context is None:
-            _context = set()
+            _context = dict()
 
         target_path = (self.root / filename).resolve()
 
