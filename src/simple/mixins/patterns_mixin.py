@@ -1,0 +1,2 @@
+class PatternsMixin:
+    pass
