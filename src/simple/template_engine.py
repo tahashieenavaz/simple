@@ -1,10 +1,15 @@
 from typing import Optional
 from pathlib import Path, PosixPath
+from simple.patterns import include_pattern
 
 
 class TemplateEngine:
     def __init__(self, root: str = "."):
         self.root = Path(root).resolve()
+        self.load_patterns()
+
+    def load_patterns(self):
+        self.include_pattern = include_pattern
 
     def check_target_path_relativity(self, *, path: PosixPath, filename: str):
         if path.is_relative_to(self.root):
