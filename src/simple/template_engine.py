@@ -1,12 +1,9 @@
-import re
 from typing import Optional
 from pathlib import Path, PosixPath
-from simple.mixins import PatternsMixin
 
 
-class TemplateEngine(PatternsMixin):
+class TemplateEngine:
     def __init__(self, root: str = "."):
-        super().__init__()
         self.root = Path(root).resolve()
 
     def check_target_path_relativity(self, *, path: PosixPath, filename: str):
