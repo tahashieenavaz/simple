@@ -1,12 +1,13 @@
 import re
 from typing import Optional
 from pathlib import Path
+from simple.mixins import PatternsMixin
 
 
-class TemplateEngine:
+class TemplateEngine(PatternsMixin):
     def __init__(self, root: str = "."):
+        super().__init__()
         self.root = Path(root).resolve()
-        self.include_pattern = re.compile(r'@include\(\s*[\'"]?(.*?)[\'"]?\s*\)')
 
     def render(self, filename: str, _visited_files: Optional[set] = None):
         if _visited_files is None:
