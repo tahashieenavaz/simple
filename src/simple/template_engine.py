@@ -48,8 +48,8 @@ class TemplateEngine:
     def render(
         self,
         filename: str,
-        _visited_paths: Optional[set] = None,
         _context: Optional[dict] = {},
+        _visited_paths: Optional[set] = None,
     ):
         if _visited_paths is None:
             _visited_paths = set()
