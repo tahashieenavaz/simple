@@ -18,3 +18,14 @@ def test_multiple_files_could_be_included():
 
     assert "this is coming from part-1.html file" in rendered
     assert "this is coming from part-2.html file" in rendered
+
+
+def test_recursive_inclusion():
+    root_path = Path(__file__).resolve().parent
+    templates_path = root_path / "templates/recursive"
+    engine = TemplateEngine(templates_path)
+    rendered = engine.render("index.html")
+
+    assert "This is header that is also going to include the navbar." in rendered
+    assert "This is the contents of navbar." in rendered
+    assert '<a href="#">Google.com</a>' in rendered
