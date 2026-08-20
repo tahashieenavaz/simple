@@ -48,14 +48,14 @@ class TemplateEngine:
     def render(
         self,
         filename: str,
-        _visited_paths: Optional[set] = None,
         _context: Optional[dict] = {},
+        _visited_paths: Optional[set] = None,
     ):
         if _visited_paths is None:
             _visited_paths = set()
 
         if _context is None:
-            _context = set()
+            _context = dict()
 
         target_path = (self.root / filename).resolve()
 
@@ -67,9 +67,7 @@ class TemplateEngine:
 
         _visited_paths.add(target_path)
         content = target_path.read_text(encoding="utf-8")
-        content = self.render_variables(
-            content=content, _visited_paths=_visited_paths.copy()
-        )
+        content = self.render_variables(content=content, _context=_context)
         content = self.render_include(
             content=content, _visited_paths=_visited_paths.copy()
         )
