@@ -9,9 +9,17 @@ class TemplateEngine(PatternsMixin):
         super().__init__()
         self.root = Path(root).resolve()
 
-    def render(self, filename: str, _visited_files: Optional[set] = None):
+    def render(
+        self,
+        filename: str,
+        _visited_files: Optional[set] = None,
+        _context: Optional[dict] = {},
+    ):
         if _visited_files is None:
             _visited_files = set()
+
+        if _context is None:
+            _context = set()
 
         target_path = (self.root / filename).resolve()
 
