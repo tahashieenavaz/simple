@@ -58,4 +58,6 @@ class TemplateEngine(PatternsMixin):
 
         _visited_paths.add(target_path)
         content = target_path.read_text(encoding="utf-8")
-        content = self.render_include(content)
+        content = self.render_include(
+            content=content, _visited_paths=_visited_paths.copy()
+        )
