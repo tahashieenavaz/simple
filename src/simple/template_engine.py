@@ -63,3 +63,4 @@ class TemplateEngine:
         content = self.render_include(
             content=content, _visited_paths=_visited_paths.copy()
         )
+        return content
