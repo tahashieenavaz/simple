@@ -15,6 +15,6 @@ def test_multiple_variables_are_rendered():
     templates_path = root_path / "templates"
     engine = TemplateEngine(templates_path)
     rendered = engine.render(
-        "multiple-variable.html", {"name": "John Doe", "prefix": "Mr. "}
+        "multiple-variable.html", {"name": "John Doe", "prefix": "Mr."}
     )
     assert "Name: Mr. John Doe" in rendered
