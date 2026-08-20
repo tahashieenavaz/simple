@@ -4,7 +4,7 @@ from pathlib import Path
 
 def test_files_could_be_included():
     root_path = Path(__file__).resolve().parent
-    templates_path = root_path / "templates"
+    templates_path = root_path / "templates" / "base"
     engine = TemplateEngine(templates_path)
     rendered = engine.render("index.html")
     assert "This part comes from extra.html." in rendered
@@ -12,7 +12,7 @@ def test_files_could_be_included():
 
 def test_multiple_files_could_be_included():
     root_path = Path(__file__).resolve().parent
-    templates_path = root_path / "templates"
+    templates_path = root_path / "templates" / "multiple"
     engine = TemplateEngine(templates_path)
     rendered = engine.render("index-multiple.html")
 
@@ -22,7 +22,7 @@ def test_multiple_files_could_be_included():
 
 def test_recursive_inclusion():
     root_path = Path(__file__).resolve().parent
-    templates_path = root_path / "templates/recursive"
+    templates_path = root_path / "templates" / "recursive"
     engine = TemplateEngine(templates_path)
     rendered = engine.render("index.html")
 
