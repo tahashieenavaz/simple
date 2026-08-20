@@ -1,36 +1,74 @@
-import re
 from typing import Optional
-from pathlib import Path
-from simple.mixins import PatternsMixin
+from pathlib import Path, PosixPath
+from simple.patterns import _include_pattern, _variable_pattern
 
 
-class TemplateEngine(PatternsMixin):
+class TemplateEngine:
     def __init__(self, root: str = "."):
-        super().__init__()
         self.root = Path(root).resolve()
+        self.load_patterns()
 
-    def render(self, filename: str, _visited_files: Optional[set] = None):
-        if _visited_files is None:
-            _visited_files = set()
+    def load_patterns(self):
+        self.include_pattern = _include_pattern
+        self.variable_pattern = _variable_pattern
+
+    def check_target_path_relativity(self, *, path: PosixPath, filename: str):
+        if path.is_relative_to(self.root):
+            return
+
+        raise PermissionError(f"Access denied: {filename} is outside template root.")
+
+    def check_target_existence(self, *, path: PosixPath, filename: str):
+        if path.is_file():
+            return
+
+        raise FileNotFoundError(f"Template not found: {filename}")
+
+    def check_visited_path_infinite_loop(
+        self, *, filename: str, path: PosixPath, visited_paths: set
+    ):
+        if path not in visited_paths:
+            return
+
+        raise RecursionError(f"Infinite inclusion loop detected: {filename}")
+
+    def render_include(self, *, _visited_paths: set, content: str):
+        def _match_resolver(match) -> str:
+            included_filename = match.group(1)
+            return self.render(included_filename, _visited_paths.copy())
+
+        return self.include_pattern.sub(_match_resolver, content)
+
+    def render_variables(self, *, content: str, _context: dict):
+        def _match_resolver(match) -> str:
+            return str(_context.get(match.group(1), ""))
+
+        return self.variable_pattern.sub(_match_resolver, content)
+
+    def render(
+        self,
+        filename: str,
+        _context: Optional[dict] = {},
+        _visited_paths: Optional[set] = None,
+    ):
+        if _visited_paths is None:
+            _visited_paths = set()
+
+        if _context is None:
+            _context = dict()
 
         target_path = (self.root / filename).resolve()
 
-        if not target_path.is_relative_to(self.root):
-            raise PermissionError(
-                f"Access denied: {filename} is outside template root."
-            )
+        self.check_target_path_relativity(path=target_path, filename=filename)
+        self.check_target_existence(path=target_path, filename=filename)
+        self.check_visited_path_infinite_loop(
+            path=target_path, filename=filename, visited_paths=_visited_paths.copy()
+        )
 
-        if not target_path.is_file():
-            raise FileNotFoundError(f"Template not found: {filename}")
-
-        if target_path in _visited_files:
-            raise RecursionError(f"Infinite inclusion loop detected: {filename}")
-
-        _visited_files.add(target_path)
+        _visited_paths.add(target_path)
         content = target_path.read_text(encoding="utf-8")
-
-        def _match_resolver(match) -> str:
-            included_filename = match.group(1)
-            return self.render(included_filename, _visited_files.copy())
-
-        return self.include_pattern.sub(_match_resolver, content)
+        content = self.render_variables(content=content, _context=_context)
+        content = self.render_include(
+            content=content, _visited_paths=_visited_paths.copy()
+        )
+        return content
