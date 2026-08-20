@@ -39,6 +39,12 @@ class TemplateEngine:
 
         return self.include_pattern.sub(_match_resolver, content)
 
+    def render_variables(self, *, content: str, _context: dict):
+        def _match_resolver(match) -> str:
+            return str(_context.get(match.group(1), ""))
+
+        return self.variable_pattern.sub(_match_resolver, content)
+
     def render(
         self,
         filename: str,
@@ -61,6 +67,9 @@ class TemplateEngine:
 
         _visited_paths.add(target_path)
         content = target_path.read_text(encoding="utf-8")
+        content = self.render_variables(
+            content=content, _visited_paths=_visited_paths.copy()
+        )
         content = self.render_include(
             content=content, _visited_paths=_visited_paths.copy()
         )
